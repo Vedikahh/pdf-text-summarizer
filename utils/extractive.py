@@ -1,5 +1,5 @@
 from collections import Counter
-from preprocess import get_sentences, get_filtered_words
+from utils.preprocess import get_sentences, get_filtered_words, remove_title
 
 
 def summarize_extractive(text, summary_ratio=0.3):
@@ -14,6 +14,7 @@ def summarize_extractive(text, summary_ratio=0.3):
         summary (str), ranked_sentences (list)
     """
 
+    text = remove_title(text)
     sentences = get_sentences(text)
 
     # Remove title-like first sentence
@@ -22,7 +23,7 @@ def summarize_extractive(text, summary_ratio=0.3):
         words = first_sentence.split()
 
         capitalized_words = sum(
-            word[0].isupper() for word in words if word[0].isalpha()
+            word[0].isupper() for word in words if word and word[0].isalpha()
         )
 
         if (

@@ -1,7 +1,11 @@
 import streamlit as st
-from pdf_reader import extract_text_from_pdf
-from preprocess import clean_text, get_sentences, get_filtered_words
-from extractive import summarize_extractive
+from utils.pdf_reader import extract_text_from_pdf
+from utils.preprocess import clean_text, get_sentences, get_filtered_words
+from utils.extractive import summarize_extractive
+from utils.abstractive import summarize_abstractive
+
+from utils.preprocess import _looks_like_title
+print(_looks_like_title("The Crow and the Stones"))  # should now print True
 
 st.set_page_config(page_title="PDF Summarizer", page_icon="📄")
 
@@ -63,6 +67,26 @@ if uploaded_file is not None:
         col3.metric("Compression", f"{compression}%")
 
         st.write(f"**Summary contains {len(ranked_sentences)} sentences.**")
+
+    # -------- Abstractive Summary --------
+    st.subheader("Abstractive Summary")
+    st.caption(
+        "This summary rewrites the document using a transformer model."
+    )
+
+    if st.button("Generate Abstractive Summary"):
+        try:
+            with st.spinner("Generating abstractive summary..."):
+                abstractive_summary = summarize_abstractive(cleaned_text)
+            st.success("Abstractive summary generated!")
+            st.write(abstractive_summary)
+        except ImportError:
+            st.error(
+                "Abstractive summarization needs extra packages. "
+                "Install them with: pip install -r requirements.txt"
+            )
+        except Exception as error:
+            st.error(f"Could not generate the abstractive summary: {error}")
 
     # -------- Preview --------
     st.subheader("Extracted Text Preview")
